@@ -95,7 +95,7 @@ echo "TARGET_DEVICE: $TARGET_DEVICE"
 
 if [ $NSU_ENABLE -eq 1 ]; then
     echo "NSU is enabled"
-    curl -LSs "https://raw.githubusercontent.com/troj00/NextGenSU/main/kernel/setup.sh" | bash -s tmp-builtin-nextgen
+    curl -LSs "https://raw.githubusercontent.com/NextGenSU/NextGenSU/nextgen/kernel/setup.sh" | bash -s tmp-builtin-nextgen
 else
     echo "NSU is disabled"
 fi
