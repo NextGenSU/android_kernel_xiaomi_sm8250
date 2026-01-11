@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       device:
-        description: 'Target Device Codename (e.g., lmi, umi)'
+        description: 'Выберите устройство (e.g., lmi, umi)'
         required: true
         default: 'umi'
         type: choice
@@ -22,24 +22,24 @@ on:
           - enuma
           - dagu
           - pipa
-      ksu:
-        description: 'Enable NextGenSU & SUSFS'
+      nsu:
+        description: 'Включить NextGenSU & SUSFS'
         required: true
         type: boolean
         default: true
 
 jobs:
   build:
-    name: Build Kernel for ${{ inputs.device }}
+    name: Сборка для ${{ inputs.device }}
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Source
-      uses: actions/checkout@v4
+    - name: Клонирование исходного кода
+      uses: actions/checkout@v6
       with:
         fetch-depth: 1 # 需要完整的 commit 历史来生成版本号
 
-    - name: Cleanup Disk Space
+    - name: Очистка дискового пространства
       # 内核编译不需要特别大的空间，但为了保险起见，清理一些预装软件
       run: |
         sudo rm -rf /usr/share/dotnet
@@ -47,15 +47,15 @@ jobs:
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-    - name: Install Dependencies
+    - name: Установка зависимостей
       # 对应 README 中的手动构建依赖
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential git curl wget bison flex zip bc cpio libssl-dev ccache python-is-python3
         sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
 
-    - name: Setup Cache (ccache)
-      uses: actions/cache@v4
+    - name: Настройка Cache (ccache)
+      uses: actions/cache@v5
       with:
         path: ~/.cache/ccache_mikernel
         key: kernel-ccache-${{ inputs.device }}-${{ github.run_id }}
@@ -63,7 +63,7 @@ jobs:
           kernel-ccache-${{ inputs.device }}-
           kernel-ccache-
 
-    - name: Setup Toolchain (ZyC-Clang 15)
+    - name: Установка Toolchain (ZyC-Clang 15)
       # 对应 Manual Build 第 2 步
       run: |
         mkdir -p $HOME/zyc-clang
@@ -71,7 +71,7 @@ jobs:
         wget -q https://github.com/ZyCromerZ/Clang/releases/download/15.0.7-20251111-release/Clang-15.0.7-20251111.tar.gz
         tar -zxvf Clang-15.0.7-20251111.tar.gz
 
-    - name: Build Kernel
+    - name: Сборка ядра
       run: |
         chmod +x build_miui.sh
         
@@ -83,10 +83,9 @@ jobs:
           bash build_miui.sh ${{ inputs.device }}
         fi
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+    - name: Выгрузка артефактов сборки
+      uses: actions/upload-artifact@v6
       with:
         name: Kernel-${{ inputs.device }}-${{ inputs.nsu && 'NSU' || 'NoNSU' }}-${{ github.run_number }}
         path: ./*.zip
         if-no-files-found: error
-        
