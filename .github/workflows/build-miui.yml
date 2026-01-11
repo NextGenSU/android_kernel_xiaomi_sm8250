@@ -86,6 +86,6 @@ jobs:
     - name: Выгрузка артефактов сборки
       uses: actions/upload-artifact@v6
       with:
-        name: Kernel-${{ inputs.device }}-${{ inputs.nsu && 'NSU' || 'NoNSU' }}-${{ github.run_number }}
+        name: MIUI-${{ inputs.device }}-${{ inputs.nsu && 'NSU' || 'NoNSU' }}
         path: ./*.zip
         if-no-files-found: error
